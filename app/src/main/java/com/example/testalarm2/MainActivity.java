@@ -2,11 +2,13 @@ package com.example.testalarm2;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -17,6 +19,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -42,6 +45,21 @@ public class MainActivity extends AppCompatActivity {
         alarmUpdate();
 
         findViewById(R.id.floatingActionButton).setOnClickListener(onClickListener);
+
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
+
+            @Override
+            public boolean onMove(RecyclerView recyclerView,  RecyclerView.ViewHolder viewHolder,  RecyclerView.ViewHolder target) {
+                Log.e(TAG,"swipeswipeswipeswipeswipeswipeswipeswipeswipeswipe");
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+
+
+            }
+        });
     }
 
     View.OnClickListener onClickListener = new View.OnClickListener() {
@@ -52,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private void alarmUpdate(){
-        firebaseFirestore.collection("AlarmDemo").orderBy("createAt", Query.Direction.DESCENDING).get()
+        firebaseFirestore.collection("AlarmDemo").orderBy("hour",Query.Direction.ASCENDING).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -64,14 +82,17 @@ public class MainActivity extends AppCompatActivity {
                                         document.getData().get("hour").toString(),
                                         document.getData().get("minute").toString(),
                                         document.getData().get("drugtext").toString(),
+                                        document.getData().get("ampm").toString(),
                                         document.getId()
-                                ));
 
+                                ));
                             }
                             myAdapter = new MyAdapter(MainActivity.this, alarmList);
                             recyclerView.setAdapter(myAdapter);
                             myAdapter.notifyDataSetChanged();
 
+                        }else {
+                            Log.d(TAG, "Error : ",task.getException());
                         }
                     }
                 });
@@ -82,8 +103,15 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(intent, 1);
     }
 
+  /*  private void myStartActivity(Class c, AlarmInfo alarmInfo){
+        Intent intent = new Intent(this,c);
+        intent.putExtra("alarmInfo", alarmInfo);
+        startActivity(intent);
+    }*/
+
     public void cancel(View view) {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
+
 }

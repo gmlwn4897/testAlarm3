@@ -2,6 +2,7 @@ package com.example.testalarm2;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,7 +50,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
             public void onClick(View v) {
                 Intent intent = new Intent(activity, SettingAlarm.class);
                 intent.putExtra("alarmInfo",mDataset.get(myViewHolder.getAdapterPosition()));
-                Toast.makeText(v.getContext(),mDataset.get(myViewHolder.getAdapterPosition())+"",Toast.LENGTH_LONG).show();
+                //Toast.makeText(v.getContext(),mDataset.get(myViewHolder.getAdapterPosition())+"",Toast.LENGTH_LONG).show();
                 activity.startActivity(intent);
             }
         });
@@ -62,12 +63,24 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         CardView cardView = holder.cardView;
         TextView hourText = cardView.findViewById(R.id.hourText);
         hourText.setText(mDataset.get(position).getHour());
+        Log.e("확인확인", String.valueOf(mDataset.get(position).getHour()));
+
 
         TextView minuteText = cardView.findViewById(R.id.minuteText);
         minuteText.setText(mDataset.get(position).getMinute());
+        Log.e("getMinute",mDataset.get(position).getMinute());
+
 
         TextView drugText = cardView.findViewById(R.id.drug_text);
         drugText.setText(mDataset.get(position).getDrugText());
+        Log.e("getDrugText",mDataset.get(position).getDrugText());
+
+
+        TextView ampmText = cardView.findViewById(R.id.ampmText);
+        ampmText.setText(mDataset.get(position).getAmpm());
+        Log.e("getAmpm", mDataset.get(position).getAmpm());
+
+
     }
 
     @Override

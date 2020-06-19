@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -45,8 +46,8 @@ public class SettingAlarm extends MainActivity {
     private EditText drugEditText;
     private AlarmInfo alarmInfo2; //database에 올린 결과들을 가져오는 변수
     private AlarmManager alarmManager;
-    private String hour, minute;
-    private int notificationId;
+    private String hour, minute, ampm;
+    private int notificationId=0;
 
     private String notificationText;
 
@@ -88,9 +89,13 @@ public class SettingAlarm extends MainActivity {
                                 notificationText = document.getData().get("drugtext").toString();
                                 hour = document.getData().get("hour").toString();
                                 minute = document.getData().get("minute").toString();
-                              Log.e("data : ",notificationText);
-                                Log.e("data : ",hour);
-                                Log.e("data : ",minute);
+                                ampm = document.getData().get("ampm").toString();
+                                document.getId();
+                                Log.e("data : ",notificationText);
+                                Log.e("hour : ",hour);
+                                Log.e("minute : ",minute);
+                                Log.e("ampm: ", ampm);
+
 
                             }
                         }
@@ -104,7 +109,8 @@ public class SettingAlarm extends MainActivity {
 
         hour = timePicker.getCurrentHour().toString();
         minute = timePicker.getCurrentMinute().toString();
-        String drugtext = drugEditText.getText().toString();
+        //notificationText = drugEditText.getText().toString();
+
 
         Calendar calendar = Calendar.getInstance();
 
@@ -123,31 +129,66 @@ public class SettingAlarm extends MainActivity {
         Intent intent = new Intent(this, AlarmReceiver.class);
 
 
-        intent.putExtra("id", notificationId );
-        intent.putExtra("drug", notificationText);
-
         PendingIntent pIntent = PendingIntent.getBroadcast(this, notificationId ,intent,0);
         notificationId ++;
         alarmManager.set(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(),pIntent);
         Toast.makeText(this,"알림이 설정되었습니다.",Toast.LENGTH_SHORT).show();
 
 
+        intent.putExtra("id", notificationId );
+        intent.putExtra("drug", drugEditText.getText().toString());
+
     }
 
     private void contentsUpdate(){
         TimePicker timePicker = (TimePicker)findViewById(R.id.timepicker);
+        TextView textView = (TextView)findViewById(R.id.ampmText);
         final String hour = timePicker.getCurrentHour().toString();
         final String minute = timePicker.getCurrentMinute().toString();
         final String drugText = ((EditText)findViewById(R.id.editText)).getText().toString();
 
+        int hourtest = Integer.parseInt(hour);
+        int minutetest = Integer.parseInt(minute);
+
+        String hourtext="";
+        String minutetext="";
+
+        String realTime = "";
 
         //시,분이 입력되었을때
         if(hour.length()>0 && minute.length()>0){
-            FirebaseUser User = FirebaseAuth.getInstance().getCurrentUser();
-            AlarmInfo alarmInfo = new AlarmInfo(hour,minute,drugText);
+
+            if(hourtest>11 && hourtest<24){
+                ampm="오후";
+                realTime= String.valueOf(hourtest-12);
+            }else{
+                ampm="오전";
+                realTime= String.valueOf(hourtest);
+            }
+
+
+
+            if(hourtest<10){
+                hourtext = " "+realTime+":";
+            }else{
+                hourtext=realTime+":";
+            }
+            if(minutetest<10){
+                minutetext = "0"+minute;
+            }else {
+                minutetext=minute;
+            }
+
+            final String ampmText = ampm;
+
+
+            AlarmInfo alarmInfo = new AlarmInfo(hourtext,minutetext,drugText,ampmText);
+
+
             uploader(alarmInfo);//시,분,약이름이 uploader로 들어감.
         }else{
-            Toast.makeText(this,"알림시간을 설정해주세요.", Toast.LENGTH_SHORT).show();
+            Log.e("알림시간설정~!~!~!~!~!",TAG);
+            //Toast.makeText(this,"알림시간을 설정해주세요.", Toast.LENGTH_SHORT).show();
         }
     }
     //저장 버튼을 누르면 hour,minute,drugtext를 파이어베이스에 넘어감
